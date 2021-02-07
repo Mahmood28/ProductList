@@ -1,0 +1,15 @@
+{
+  "name": "ProductList",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "https://github.com/Mahmood28/ProductList.git",
+  "author": "Mahmood28 <mahmoodalwatani@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "slugify": "^1.4.6"
+  },
+  "scripts": {
+    "start": "nodemon app.js"
+  }
+}
