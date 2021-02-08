@@ -1,50 +1,62 @@
 const express = require("express");
-const db = require("./db/models");
-let products = require("./products");
+const db = require("./db/models/");
 const slugify = require("slugify");
+const { Product } = require("./db/models");
 
 const app = express();
 app.use(express.json());
 
-app.get("/products", (req, res) => {
-  res.json(products);
-});
-
-app.delete("/products/:productId", (req, res) => {
-  const foundProduct = products.find(
-    (product) => product.id === +req.params.productId
-  );
-  if (foundProduct) {
-    products = products.filter((product) => product !== foundProduct);
-    res.status(204).end();
-  } else {
-    res.status(404).json({ message: "The product requested does not exist." });
+app.get("/products", async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
-app.post("/products", (req, res) => {
-  newId = products[products.length - 1].id + 1;
-  newSlug = slugify(req.body.name);
-  newProduct = { id: newId, slug: newSlug, ...req.body };
-  products.push(newProduct);
-  res.status(201).json(newProduct);
+app.post("/products", async (req, res) => {
+  try {
+    const newProduct = await Product.create(req.body);
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
-db.sequelize.authenticate();
+app.delete("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const foundProduct = await Product.findByPk(productId);
+    if (foundProduct) {
+      await foundProduct.destroy();
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "This product does not exist." });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
+app.put("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const foundProduct = await Product.findByPk(productId);
+    if (foundProduct) {
+      await foundProduct.update(req.body);
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "This product does not exist." });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+db.sequelize.sync();
+// db.sequelize.sync({ alter: true });
+// db.sequelize.sync({ force: true });
 app.listen(8000);
-
-// const run = async () => {
-//   try {
-//     await db.sequelize.authenticate();
-//     console.log("Connection to the database successful!");
-//   } catch (error) {
-//     console.error("Error connecting to the database: ", error);
-//   }
-
-//   await app.listen(8000, () => {
-//     console.log("The application is running on localhost:8000");
-//   });
-// };
-
-// run();
