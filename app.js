@@ -1,12 +1,10 @@
 const express = require("express");
+const db = require("./db/models");
 let products = require("./products");
 const slugify = require("slugify");
 
 const app = express();
-
 app.use(express.json());
-
-app.listen(8000);
 
 app.get("/products", (req, res) => {
   res.json(products);
@@ -31,3 +29,22 @@ app.post("/products", (req, res) => {
   products.push(newProduct);
   res.status(201).json(newProduct);
 });
+
+db.sequelize.authenticate();
+
+app.listen(8000);
+
+// const run = async () => {
+//   try {
+//     await db.sequelize.authenticate();
+//     console.log("Connection to the database successful!");
+//   } catch (error) {
+//     console.error("Error connecting to the database: ", error);
+//   }
+
+//   await app.listen(8000, () => {
+//     console.log("The application is running on localhost:8000");
+//   });
+// };
+
+// run();
