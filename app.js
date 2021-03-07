@@ -2,10 +2,11 @@ const express = require("express");
 const db = require("./db/models/");
 const passport = require("passport");
 
+const orderRoutes = require("./routes/orders");
 const productRoutes = require("./routes/products");
 const shopRoutes = require("./routes/shops");
 const userRoutes = require("./routes/users");
-const { localStrategy } = require("./middleware/passport");
+const { localStrategy, jwtStrategy } = require("./middleware/passport");
 const cors = require("cors");
 const app = express();
 const path = require("path");
@@ -17,9 +18,11 @@ app.use(express.json());
 app.use(passport.initialize());
 
 passport.use(localStrategy);
+passport.use(jwtStrategy);
 app.use("/products", productRoutes);
 app.use("/shops", shopRoutes);
 app.use(userRoutes);
+app.use(orderRoutes);
 
 app.use("/media", express.static(path.join(__dirname, "media")));
 
